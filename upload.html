@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Devis - Born To Host</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .upload-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #B8D62E;
+            margin-bottom: 30px;
+        }
+        
+        .upload-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .upload-description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .drop-zone {
+            border: 3px dashed #B8D62E;
+            border-radius: 10px;
+            padding: 60px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .drop-zone:hover {
+            background: #e8f5e9;
+            border-color: #9AB82A;
+        }
+        
+        .drop-zone.dragover {
+            background: #e8f5e9;
+            border-color: #9AB82A;
+        }
+        
+        .drop-zone.has-file {
+            border-style: solid;
+            background: #f0f7e8;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .file-info {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .file-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #B8D62E;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            border-left: 4px solid #B8D62E;
+        }
+        
+        .result.active {
+            display: block;
+        }
+        
+        .result-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .references-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .references-list li {
+            display: inline-block;
+            background: #B8D62E;
+            color: #1a1a1a;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .redirect-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #B8D62E 0%, #9AB82A 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .redirect-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 214, 46, 0.3);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #B8D62E;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .error {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffebee;
+            border-radius: 8px;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body style="background: #f5f5f5;">
+    <div class="upload-container">
+        <div class="logo">BORNTOHOST</div>
+        
+        <h1 class="upload-title">📄 Extraire les références d'un devis</h1>
+        <p class="upload-description">
+            Glissez-déposez votre devis pour extraire automatiquement les références d'appartements grâce à l'IA
+        </p>
+        
+        <div class="drop-zone" id="dropZone">
+            <div class="upload-icon" id="uploadIcon">📎</div>
+            <div class="upload-text" id="uploadText">Cliquez ou glissez votre fichier ici</div>
+            <div class="file-info">Formats acceptés : PDF, PNG, JPG (Max 10 MB)</div>
+            <div class="file-name" id="fileName" style="display: none;"></div>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg">
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p class="loading-text">🤖 L'IA analyse votre document...</p>
+            <p class="loading-text" style="font-size: 12px; color: #999;">Cela peut prendre quelques secondes</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result" id="result">
+            <div class="result-title" id="resultTitle"></div>
+            <ul class="references-list" id="referencesList"></ul>
+            <button class="redirect-button" onclick="redirectToMap()">
+                Voir sur la carte 🗺️
+            </button>
+        </div>
+        
+        <a href="/" class="back-link">← Retour à la carte</a>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const error = document.getElementById('error');
+        const referencesList = document.getElementById('referencesList');
+        const fileName = document.getElementById('fileName');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadText = document.getElementById('uploadText');
+        let extractedReferences = [];
+
+        // Click sur la zone de drop
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag & drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        // Sélection de fichier
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        async function handleFile(file) {
+            // Vérifier le type de fichier
+            const validTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+            if (!validTypes.includes(file.type)) {
+                showError('Type de fichier non supporté. Utilisez PDF, PNG ou JPG.');
+                return;
+            }
+
+            // Vérifier la taille (10 MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Fichier trop volumineux. Maximum 10 MB.');
+                return;
+            }
+
+            // Afficher le nom du fichier
+            fileName.textContent = '📄 ' + file.name;
+            fileName.style.display = 'block';
+            uploadIcon.textContent = '✅';
+            uploadText.textContent = 'Fichier sélectionné';
+            dropZone.classList.add('has-file');
+
+            // Afficher le loading
+            hideError();
+            result.classList.remove('active');
+            loading.classList.add('active');
+
+            try {
+                // Convertir le fichier en base64
+                const base64 = await fileToBase64(file);
+
+                // Appeler la Netlify Function
+                const response = await fetch('/.netlify/functions/extract-references', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        file: base64,
+                        mimeType: file.type
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erreur lors de l\'extraction');
+                }
+
+                if (data.references && data.references.length > 0) {
+                    extractedReferences = data.references;
+                    displayReferences(data.references, data.count);
+                } else {
+                    showError('Aucune référence d\'appartement trouvée dans ce document. Vérifiez que le fichier est bien un devis Born To Host.');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                
+                // Messages d'erreur plus utiles
+                let errorMsg = err.message;
+                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    errorMsg = 'Erreur de connexion au serveur. Vérifiez votre connexion internet et réessayez.';
+                }
+                
+                showError(errorMsg);
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function displayReferences(references, count) {
+            referencesList.innerHTML = '';
+            references.forEach(ref => {
+                const li = document.createElement('li');
+                li.textContent = ref;
+                referencesList.appendChild(li);
+            });
+            
+            document.getElementById('resultTitle').textContent = 
+                `✅ ${count || references.length} référence(s) extraite(s) avec succès !`;
+            result.classList.add('active');
+        }
+
+        function redirectToMap() {
+            const refs = extractedReferences.join(',');
+            window.location.href = `/?apparts=${encodeURIComponent(refs)}`;
+        }
+
+        function showError(message) {
+            error.innerHTML = message;
+            error.classList.add('active');
+        }
+
+        function hideError() {
+            error.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
