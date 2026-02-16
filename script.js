@@ -296,4 +296,5 @@ window.clearMap = function() {
     markers = [];
     currentApartments = [];
     document.getElementById('selected-apartments').style.display = 'none';
-    document.getElementById('share-link-container').style.dis
+    document.getElementById('share-link-container').style.display = 'none';
+};
