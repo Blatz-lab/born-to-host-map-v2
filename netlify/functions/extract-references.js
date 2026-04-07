@@ -77,7 +77,7 @@ exports.handler = async (event) => {
 
         // Appeler l'API Claude
         const message = await anthropic.messages.create({
-            model: 'claude-sonnet-4-5-20250929',
+            model: 'claude-sonnet-4-6',
             max_tokens: 1024,
             messages: [
                 {
@@ -140,7 +140,7 @@ Format exact attendu : {"references": ["A1B205", "A1B226", "A0B123"]}`
         // Messages d'erreur plus explicites
         let errorMessage = 'Erreur lors de l\'extraction';
         if (error.status === 401) {
-            errorMessage = 'Clé API Claude invalide. Vérifiez la variable CLAUDE_API_KEY dans Netlify.';
+            errorMessage = 'Requête invalide (400) : ' + (error.message || 'Vérifiez le format du fichier. Max 32 MB pour les PDF, 100 pages.');
         } else if (error.status === 429) {
             errorMessage = 'Trop de requêtes. Veuillez réessayer dans quelques secondes.';
         } else if (error.status === 400) {
